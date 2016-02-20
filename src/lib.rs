@@ -1,3 +1,5 @@
+#![no_std]
+
 pub trait Gcd {
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
     /// using the [Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm)
