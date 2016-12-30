@@ -3,6 +3,18 @@
 pub trait Gcd {
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
     /// using the [Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm)
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use gcd::Gcd;
+    ///
+    /// assert_eq!(0, 0u8.gcd(0));
+    /// assert_eq!(10, 10u8.gcd(0));
+    /// assert_eq!(10, 0u8.gcd(10));
+    /// assert_eq!(10, 10u8.gcd(20));
+    /// assert_eq!(44, 2024u32.gcd(748));
+    /// ```
     fn gcd(self, other: Self) -> Self;
 }
 
