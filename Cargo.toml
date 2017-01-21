@@ -6,3 +6,5 @@ description = "Small Rust library (with no dependencies) for calculating greates
 license = "MIT/Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/frewsxcv/rust-gcd"
+documentation = "https://docs.rs/gcd/"
+categories = ["algorithms"]
