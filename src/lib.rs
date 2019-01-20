@@ -41,7 +41,7 @@ macro_rules! gcd_impl {
     )*)
 }
 
-gcd_impl! { u8, u16, u32, u64, usize }
+gcd_impl! { u8, u16, u32, u64, u128, usize }
 
 #[cfg(test)]
 mod test {
