@@ -21,21 +21,24 @@ pub trait Gcd {
 macro_rules! gcd_impl {
     ($($t:ty),*) => ($(
         impl Gcd for $t {
-            fn gcd(self, other: Self) -> Self {
-                // variable names based off Euclidean divison equation: a = b · q + r
-                let (mut a, mut b) = if self > other {
-                    (self, other)
-                } else {
-                    (other, self)
-                };
-
-                while b != 0 {
-                    let r = a % b;
-                    a = b;
-                    b = r;
-                }
-
-                a
+            fn gcd(self, mut v: Self) -> Self
+            {
+                let mut u = self;
+                if u == 0{ return v}
+                if v == 0{ return u}
+                let shift = (u|v).trailing_zeros();
+                u = u>>shift;
+                v = v>>shift;
+                u = u>>(u.trailing_zeros());
+                while {
+                    v = v>>(v.trailing_zeros());
+                    if u > v {
+                        core::mem::swap(&mut v, &mut u);
+                    }
+                    v -= u; // Here v >= u.
+                    v!=0
+                } {}
+                return u << shift;
             }
         }
     )*)
