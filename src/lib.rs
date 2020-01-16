@@ -31,9 +31,9 @@ macro_rules! gcd_impl {
                     return u
                 }
                 let shift = (u|v).trailing_zeros();
-                u = u>>shift;
-                v = v>>shift;
-                u = u>>(u.trailing_zeros());
+                u >>= shift;
+                v >>= shift;
+                u >>= u.trailing_zeros();
                 while {
                     v = v>>(v.trailing_zeros());
                     if u > v {
