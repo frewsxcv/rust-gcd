@@ -24,8 +24,12 @@ macro_rules! gcd_impl {
             fn gcd(self, mut v: Self) -> Self
             {
                 let mut u = self;
-                if u == 0{ return v}
-                if v == 0{ return u}
+                if u == 0 {
+                    return v
+                }
+                if v == 0 {
+                    return u
+                }
                 let shift = (u|v).trailing_zeros();
                 u = u>>shift;
                 v = v>>shift;
@@ -38,7 +42,7 @@ macro_rules! gcd_impl {
                     v -= u; // Here v >= u.
                     v!=0
                 } {}
-                return u << shift;
+                u << shift
             }
         }
     )*)
