@@ -16,12 +16,17 @@ pub trait Gcd {
     /// assert_eq!(44, 2024u32.gcd(748));
     /// ```
     fn gcd(self, other: Self) -> Self;
+    fn gcd_binary(self, other: Self) -> Self;
+    fn gcd_euclid(self, other: Self) -> Self;
 }
 
 macro_rules! gcd_impl {
     ($($t:ty),*) => ($(
         impl Gcd for $t {
-            fn gcd(self, mut v: Self) -> Self {
+            fn gcd(self,other: Self) -> Self {
+                self.gcd_binary(other)
+            }
+            fn gcd_binary(self, mut v: Self) -> Self {
                 let mut u = self;
                 if u == 0 {
                     return v;
@@ -44,6 +49,22 @@ macro_rules! gcd_impl {
                     }
                 }
                 u << shift
+            }
+            fn gcd_euclid(self, other: Self) -> Self {
+                // variable names based off Euclidean divison equation: a = b · q + r
+                let (mut a, mut b) = if self > other {
+                    (self, other)
+                } else {
+                    (other, self)
+                };
+
+                while b != 0 {
+                    let r = a % b;
+                    a = b;
+                    b = r;
+                }
+
+                a
             }
         }
     )*)
