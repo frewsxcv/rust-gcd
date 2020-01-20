@@ -21,27 +21,28 @@ pub trait Gcd {
 macro_rules! gcd_impl {
     ($($t:ty),*) => ($(
         impl Gcd for $t {
-            fn gcd(self, mut v: Self) -> Self
-            {
+            fn gcd(self, mut v: Self) -> Self {
                 let mut u = self;
                 if u == 0 {
-                    return v
+                    return v;
                 }
                 if v == 0 {
-                    return u
+                    return u;
                 }
-                let shift = (u|v).trailing_zeros();
+                let shift = (u | v).trailing_zeros();
                 u >>= shift;
                 v >>= shift;
                 u >>= u.trailing_zeros();
-                while {
-                    v = v>>(v.trailing_zeros());
+                loop {
+                    v = v >> (v.trailing_zeros());
                     if u > v {
                         core::mem::swap(&mut v, &mut u);
                     }
                     v -= u; // Here v >= u.
-                    v!=0
-                } {}
+                    if v == 0 {
+                        break;
+                    }
+                }
                 u << shift
             }
         }
