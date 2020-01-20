@@ -62,9 +62,9 @@ macro_rules! gcd_impl {
                     let r = a % b;
                     a = b;
                     b = r;
-                }
-
-                a
+		}
+		
+		a
             }
         }
     )*)
@@ -78,10 +78,16 @@ mod test {
 
     #[test]
     fn test_gcd() {
-        assert_eq!(0, 0u8.gcd(0));
-        assert_eq!(10, 10u8.gcd(0));
-        assert_eq!(10, 0u8.gcd(10));
-        assert_eq!(10, 10u8.gcd(20));
-        assert_eq!(44, 2024u32.gcd(748));
+        assert_eq!(0, 0u8.gcd_euclid(0));
+        assert_eq!(10, 10u8.gcd_euclid(0));
+        assert_eq!(10, 0u8.gcd_euclid(10));
+        assert_eq!(10, 10u8.gcd_euclid(20));
+        assert_eq!(44, 2024u32.gcd_euclid(748));
+
+        assert_eq!(0, 0u8.gcd_binary(0));
+        assert_eq!(10, 10u8.gcd_binary(0));
+        assert_eq!(10, 0u8.gcd_binary(10));
+        assert_eq!(10, 10u8.gcd_binary(20));
+        assert_eq!(44, 2024u32.gcd_binary(748));
     }
 }
