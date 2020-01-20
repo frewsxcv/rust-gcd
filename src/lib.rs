@@ -63,7 +63,7 @@ macro_rules! gcd_impl {
                     a = b;
                     b = r;
 		}
-		
+
 		a
             }
         }
