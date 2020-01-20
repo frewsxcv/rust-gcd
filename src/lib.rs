@@ -41,7 +41,10 @@ macro_rules! gcd_impl {
                 loop {
                     v = v >> (v.trailing_zeros());
                     if u > v {
-                        core::mem::swap(&mut v, &mut u);
+                        //XOR swap algorithm
+                        v ^= u;
+                        u ^= v;
+                        v ^= u;
                     }
                     v -= u; // Here v >= u.
                     if v == 0 {
@@ -62,9 +65,9 @@ macro_rules! gcd_impl {
                     let r = a % b;
                     a = b;
                     b = r;
-		}
+                }
 
-		a
+                a
             }
         }
     )*)
