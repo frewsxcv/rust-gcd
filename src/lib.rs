@@ -39,7 +39,7 @@ macro_rules! gcd_impl {
                 v >>= shift;
                 u >>= u.trailing_zeros();
                 loop {
-                    v = v >> (v.trailing_zeros());
+                    v >>= v.trailing_zeros();
                     if u > v {
                         //XOR swap algorithm
                         v ^= u;
