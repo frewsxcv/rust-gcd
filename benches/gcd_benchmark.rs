@@ -1,44 +1,41 @@
 extern crate criterion;
 extern crate gcd;
+extern crate rand;
+extern crate rand_chacha;
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use gcd::Gcd;
+use rand::{Rng, SeedableRng};
+
+const SEED: u64 = 314;
 
 fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("gcd u8", |b| b.iter(|| {
-        black_box(0u8.gcd(0));
-        black_box(0u8.gcd(237));
-        black_box(237u8.gcd(0));
-        black_box(237u8.gcd(178));
-    }));
+    macro_rules! bench_function {
+        ($name:expr, $type:ty, $func:ident) => {
+            c.bench_function($name, |b| {
+                let mut rng = rand_chacha::ChaCha8Rng::seed_from_u64(SEED);
+                let values: Vec<$type> = (0..1000).map(|_| rng.gen()).collect();
+                b.iter(|| {
+                    for i in 0..values.len() - 1 {
+                        let (a, b) = (values[i], values[i + 1]);
+                        black_box(a.$func(b));
+                    }
+                })
+            });
+        };
+    };
 
-    c.bench_function("gcd u16", |b| b.iter(|| {
-        black_box(0u16.gcd(0));
-        black_box(0u16.gcd(10));
-        black_box(237u16.gcd(0));
-        black_box(237u16.gcd(178));
-    }));
+    bench_function!("gcd euclid u8", u8, gcd_euclid);
+    bench_function!("gcd euclid u16", u16, gcd_euclid);
+    bench_function!("gcd euclid u32", u32, gcd_euclid);
+    bench_function!("gcd euclid u64", u64, gcd_euclid);
+    bench_function!("gcd euclid u128", u128, gcd_euclid);
 
-    c.bench_function("gcd u32", |b| b.iter(|| {
-        black_box(0u32.gcd(0));
-        black_box(0u32.gcd(10));
-        black_box(237u32.gcd(0));
-        black_box(237u32.gcd(178));
-    }));
-
-    c.bench_function("gcd u64", |b| b.iter(|| {
-        black_box(0u64.gcd(0));
-        black_box(0u64.gcd(10));
-        black_box(237u64.gcd(0));
-        black_box(237u64.gcd(178));
-    }));
-
-    c.bench_function("gcd u128", |b| b.iter(|| {
-        black_box(0u128.gcd(0));
-        black_box(0u128.gcd(10));
-        black_box(237u128.gcd(0));
-        black_box(237u128.gcd(178));
-    }));
+    bench_function!("gcd binary u8", u8, gcd_binary);
+    bench_function!("gcd binary u16", u16, gcd_binary);
+    bench_function!("gcd binary u32", u32, gcd_binary);
+    bench_function!("gcd binary u64", u64, gcd_binary);
+    bench_function!("gcd binary u128", u128, gcd_binary);
 }
 
 criterion_group!(benches, criterion_benchmark);

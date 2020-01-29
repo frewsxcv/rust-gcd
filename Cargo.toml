@@ -11,6 +11,8 @@ categories = ["algorithms"]
 
 [dev-dependencies]
 criterion = "0.3"
+rand = "0.7"
+rand_chacha = "0.2"
 
 [[bench]]
 name = "gcd_benchmark"
