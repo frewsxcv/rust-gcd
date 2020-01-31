@@ -2,7 +2,9 @@
 
 pub trait Gcd {
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
-    /// using the [Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm)
+    /// using [`gcd_binary`].
+    ///
+    /// [`gcd_binary`]: #method.gcd_binary
     ///
     /// # Examples
     ///
@@ -16,7 +18,11 @@ pub trait Gcd {
     /// assert_eq!(44, 2024u32.gcd(748));
     /// ```
     fn gcd(self, other: Self) -> Self;
+    /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
+    /// using the [Binary GCD algorithm](https://en.wikipedia.org/wiki/Binary_GCD_algorithm).
     fn gcd_binary(self, other: Self) -> Self;
+    /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
+    /// using the [Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm).
     fn gcd_euclid(self, other: Self) -> Self;
 }
 
