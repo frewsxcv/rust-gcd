@@ -23,7 +23,7 @@ fn criterion_benchmark(c: &mut Criterion) {
                 })
             });
         };
-    };
+    }
 
     bench_function!("gcd euclid u8", u8, gcd_euclid);
     bench_function!("gcd euclid u16", u16, gcd_euclid);
