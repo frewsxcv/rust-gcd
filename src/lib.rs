@@ -18,47 +18,54 @@ pub trait Gcd {
     /// assert_eq!(44, 2024u32.gcd(748));
     /// ```
     fn gcd(self, other: Self) -> Self;
+
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
     /// using the [Binary GCD algorithm](https://en.wikipedia.org/wiki/Binary_GCD_algorithm).
     fn gcd_binary(self, other: Self) -> Self;
+
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
     /// using the [Euclidean algorithm](https://en.wikipedia.org/wiki/Euclidean_algorithm).
     fn gcd_euclid(self, other: Self) -> Self;
 }
 
 macro_rules! gcd_impl {
-    ($($t:ty),*) => ($(
-        impl Gcd for $t {
-            fn gcd(self,other: Self) -> Self {
+    ($($T:ty),*) => {$(
+        impl Gcd for $T {
+            fn gcd(self, other: $T) -> $T {
                 self.gcd_binary(other)
             }
-            fn gcd_binary(self, mut v: Self) -> Self {
+
+            fn gcd_binary(self, mut v: $T) -> $T {
                 let mut u = self;
-                if u == 0 {
-                    return v;
-                }
-                if v == 0 {
-                    return u;
-                }
+
+                if u == 0 { return v; }
+                if v == 0 { return u; }
+
                 let shift = (u | v).trailing_zeros();
                 u >>= shift;
                 v >>= shift;
                 u >>= u.trailing_zeros();
+
                 loop {
                     v >>= v.trailing_zeros();
+
                     if u > v {
                         //XOR swap algorithm
                         v ^= u;
                         u ^= v;
                         v ^= u;
                     }
+
                     v -= u; // Here v >= u.
+
                     if v == 0 {
                         break;
                     }
                 }
+
                 u << shift
             }
+
             fn gcd_euclid(self, other: Self) -> Self {
                 // variable names based off Euclidean divison equation: a = b · q + r
                 let (mut a, mut b) = if self > other {
@@ -76,7 +83,7 @@ macro_rules! gcd_impl {
                 a
             }
         }
-    )*)
+    )*};
 }
 
 gcd_impl! { u8, u16, u32, u64, u128, usize }
