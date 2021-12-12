@@ -1,7 +1,5 @@
 #![no_std]
 
-use core::mem;
-
 pub trait Gcd {
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
     /// using [`gcd_binary`].
@@ -32,14 +30,11 @@ pub trait Gcd {
 
 macro_rules! gcd_impl {
     ($($T:ty),*) => {$(
-        impl Gcd for $T {
-            fn gcd(self, other: $T) -> $T {
-                self.gcd_binary(other)
-            }
 
-            fn gcd_binary(self, mut v: $T) -> $T {
-                let mut u = self;
-
+        paste::paste! {
+            #[doc = "Const binary GCD implementation for `" $T "`."]
+            pub const fn [<binary_ $T>](mut u: $T, mut v: $T) -> $T
+            {
                 if u == 0 { return v; }
                 if v == 0 { return u; }
 
@@ -52,7 +47,10 @@ macro_rules! gcd_impl {
                     v >>= v.trailing_zeros();
 
                     if u > v {
-                        mem::swap(&mut u, &mut v);
+                        // mem::swap(&mut u, &mut v);
+                        let temp = u;
+                        u = v;
+                        v = temp;
                     }
 
                     v -= u; // here v >= u
@@ -63,20 +61,45 @@ macro_rules! gcd_impl {
                 u << shift
             }
 
-            fn gcd_euclid(self, other: $T) -> $T {
-                // variable names based off euclidean divison equation: a = b · q + r
-                let (mut a, mut b) = if self > other {
-                    (self, other)
+            #[doc = "Const euclid GCD implementation for `" $T "`."]
+            pub const fn [<euclid_ $T>]( a: $T,  b: $T) -> $T
+            {
+                // variable names based off euclidean division equation: a = b · q + r
+                let (mut a, mut b) = if a > b {
+                    (a, b)
                 } else {
-                    (other, self)
+                    (b, a)
                 };
 
                 while b != 0 {
-                    mem::swap(&mut a, &mut b);
+                    // mem::swap(&mut a, &mut b);
+                    let temp = a;
+                    a = b;
+                    b = temp;
+
                     b %= a;
                 }
 
                 a
+            }
+        }
+
+
+        impl Gcd for $T {
+            fn gcd(self, other: $T) -> $T {
+                self.gcd_binary(other)
+            }
+
+            fn gcd_binary(self, v: $T) -> $T {
+                paste::paste! {
+                    [<binary_ $T>](self, v)
+                }
+            }
+
+            fn gcd_euclid(self, other: $T) -> $T {
+                paste::paste! {
+                    [<euclid_ $T>](self, other)
+                }
             }
         }
     )*};
@@ -86,7 +109,7 @@ gcd_impl! { u8, u16, u32, u64, u128, usize }
 
 #[cfg(test)]
 mod test {
-    use super::Gcd;
+    use super::*;
 
     #[test]
     fn test_gcd() {
@@ -101,5 +124,14 @@ mod test {
         assert_eq!(10, 0u8.gcd_binary(10));
         assert_eq!(10, 10u8.gcd_binary(20));
         assert_eq!(44, 2024u32.gcd_binary(748));
+    }
+
+    const GCD_10_20: u16 = binary_u16(10, 20);
+    const GCD_2024_748: u32 = binary_u32(2024, 44);
+
+    #[test]
+    fn test_const_gcd() {
+        assert_eq!(10, GCD_10_20);
+        assert_eq!(44, GCD_2024_748);
     }
 }
