@@ -1,8 +1,8 @@
 [package]
 name = "gcd"
-version = "2.0.2"
+version = "2.1.0"
 authors = ["Corey Farwell <coreyf@rwell.org>"]
-description = "Small Rust library (with no dependencies) for calculating greatest common divisor"
+description = "Calculate the greatest common divisor"
 license = "MIT/Apache-2.0"
 readme = "README.md"
 repository = "https://github.com/frewsxcv/rust-gcd"

@@ -2,7 +2,7 @@
 
 [Documentation](https://docs.rs/gcd/)
 
-Small Rust library (with no dependencies) for calculating the greatest common divisor of two numbers
+Small Rust library for calculating the greatest common divisor of two numbers
 
 ## License
 
