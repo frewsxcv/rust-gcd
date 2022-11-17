@@ -29,11 +29,11 @@ pub trait Gcd {
 }
 
 macro_rules! gcd_impl {
-    ($($T:ty),*) => {$(
+    ($(($T:ty) $binary:ident $euclid:ident),*) => {$(
 
-        paste::paste! {
-            #[doc = "Const binary GCD implementation for `" $T "`."]
-            pub const fn [<binary_ $T>](mut u: $T, mut v: $T) -> $T
+
+            #[doc = concat!("Const binary GCD implementation for `", stringify!($T), "`.")]
+            pub const fn $binary(mut u: $T, mut v: $T) -> $T
             {
                 if u == 0 { return v; }
                 if v == 0 { return u; }
@@ -46,6 +46,7 @@ macro_rules! gcd_impl {
                 loop {
                     v >>= v.trailing_zeros();
 
+                    #[allow(clippy::manual_swap)]
                     if u > v {
                         // mem::swap(&mut u, &mut v);
                         let temp = u;
@@ -61,8 +62,8 @@ macro_rules! gcd_impl {
                 u << shift
             }
 
-            #[doc = "Const euclid GCD implementation for `" $T "`."]
-            pub const fn [<euclid_ $T>]( a: $T,  b: $T) -> $T
+            #[doc = concat!("Const euclid GCD implementation for `", stringify!($T), "`.")]
+            pub const fn $euclid( a: $T,  b: $T) -> $T
             {
                 // variable names based off euclidean division equation: a = b · q + r
                 let (mut a, mut b) = if a > b {
@@ -71,6 +72,7 @@ macro_rules! gcd_impl {
                     (b, a)
                 };
 
+                #[allow(clippy::manual_swap)]
                 while b != 0 {
                     // mem::swap(&mut a, &mut b);
                     let temp = a;
@@ -82,7 +84,7 @@ macro_rules! gcd_impl {
 
                 a
             }
-        }
+
 
 
         impl Gcd for $T {
@@ -91,21 +93,28 @@ macro_rules! gcd_impl {
             }
 
             fn gcd_binary(self, v: $T) -> $T {
-                paste::paste! {
-                    [<binary_ $T>](self, v)
-                }
+
+                    $binary(self, v)
+
             }
 
             fn gcd_euclid(self, other: $T) -> $T {
-                paste::paste! {
-                    [<euclid_ $T>](self, other)
-                }
+
+                    $euclid(self, other)
+
             }
         }
     )*};
 }
 
-gcd_impl! { u8, u16, u32, u64, u128, usize }
+gcd_impl! {
+    (u8) binary_u8 euclid_u8,
+    (u16) binary_u16 euclid_u16,
+    (u32) binary_u32 euclid_u32,
+    (u64) binary_u64 euclid_u64,
+    (u128) binary_u128 euclid_u128,
+    (usize) binary_usize euclid_usize
+}
 
 #[cfg(test)]
 mod test {
