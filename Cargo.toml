@@ -8,6 +8,7 @@ readme = "README.md"
 repository = "https://github.com/frewsxcv/rust-gcd"
 documentation = "https://docs.rs/gcd/"
 categories = ["algorithms"]
+edition = "2021"
 
 [dependencies]
 
