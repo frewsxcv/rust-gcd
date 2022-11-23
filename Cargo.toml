@@ -10,7 +10,6 @@ documentation = "https://docs.rs/gcd/"
 categories = ["algorithms"]
 
 [dependencies]
-paste = "1"
 
 [dev-dependencies]
 criterion = "0.3"
