@@ -1,6 +1,6 @@
 [package]
 name = "gcd"
-version = "2.1.0"
+version = "2.2.0"
 authors = ["Corey Farwell <coreyf@rwell.org>"]
 description = "Calculate the greatest common divisor"
 license = "MIT/Apache-2.0"
