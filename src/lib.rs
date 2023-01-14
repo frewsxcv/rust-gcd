@@ -1,4 +1,5 @@
 #![no_std]
+use core::num::{NonZeroU128, NonZeroU16, NonZeroU32, NonZeroU64, NonZeroU8, NonZeroUsize};
 
 pub trait Gcd {
     /// Determine [greatest common divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor)
@@ -111,9 +112,58 @@ gcd_impl! {
     (usize) binary_usize euclid_usize
 }
 
+macro_rules! gcd_impl_nonzero {
+    ($(($T:ty) $binary_nonzero:ident/$binary:ident $euclid_nonzero:ident/$euclid:ident),*) => {$(
+        #[doc = concat!("Const binary GCD implementation for `", stringify!($T), "`.")]
+        pub const fn $binary_nonzero(u: $T, v: $T) -> $T
+        {
+            match <$T>::new($binary(u.get(), v.get())) {
+                Some(x) => x,
+                None => unreachable!(),
+            }
+        }
+
+        #[doc = concat!("Const euclid GCD implementation for `", stringify!($T), "`.")]
+        pub const fn $euclid_nonzero(a: $T, b: $T) -> $T
+        {
+            match <$T>::new($euclid(a.get(), b.get())) {
+                Some(x) => x,
+                None => unreachable!(),
+            }
+        }
+
+        impl Gcd for $T {
+            #[inline]
+            fn gcd(self, other: $T) -> $T {
+                self.gcd_binary(other)
+            }
+
+            #[inline]
+            fn gcd_binary(self, v: $T) -> $T {
+                $binary_nonzero(self, v)
+            }
+
+            #[inline]
+            fn gcd_euclid(self, other: $T) -> $T {
+                $euclid_nonzero(self, other)
+            }
+        }
+    )*}
+}
+
+gcd_impl_nonzero! {
+    (NonZeroU8) binary_nonzero_u8/binary_u8 euclid_nonzero_u8/euclid_u8,
+    (NonZeroU16) binary_nonzero_u16/binary_u16 euclid_nonzero_u16/euclid_u16,
+    (NonZeroU32) binary_nonzero_u32/binary_u32 euclid_nonzero_u32/euclid_u32,
+    (NonZeroU64) binary_nonzero_u64/binary_u64 euclid_nonzero_u64/euclid_u64,
+    (NonZeroU128) binary_nonzero_u128/binary_u128 euclid_nonzero_u128/euclid_u128,
+    (NonZeroUsize) binary_nonzero_usize/binary_usize euclid_nonzero_usize/euclid_usize
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
+    use core::fmt::Debug;
 
     const U8_GCD_A: [u8; 5] = [140, 1, 140, 33, 225];
     const U8_GCD_B: [u8; 5] = [136, 123, 203, 252, 153];
@@ -177,67 +227,54 @@ mod test {
         assert_eq!(10, 0u8.gcd(10));
     }
 
+    fn verify_gcd<T>(a: T, b: T, r: T)
+    where
+        T: Gcd + Copy + PartialEq + Debug,
+    {
+        let gcd = a.gcd(b);
+        let egcd = a.gcd_euclid(b);
+        let bgcd = a.gcd_binary(b);
+        assert_eq!(r, gcd, "{:?}.gcd({:?})", a, b);
+        assert_eq!(r, egcd, "{:?}.gcd_euclid({:?})", a, b);
+        assert_eq!(r, bgcd, "{:?}.gcd_binary({:?})", a, b);
+    }
+
+    fn test_gcd_ty<T, NZ, const N: usize>(
+        new: impl Fn(T) -> Option<NZ>,
+        zero: T,
+        a: &[T; N],
+        b: &[T; N],
+        r: &[T; N],
+    ) where
+        T: Gcd + Copy + PartialEq + Debug,
+        NZ: Gcd + Copy + PartialEq + Debug,
+    {
+        for ind in 0..N {
+            let a = new(a[ind]).unwrap();
+            let b = new(b[ind]).unwrap();
+            let r = new(r[ind]).unwrap();
+            verify_gcd(a, b, r);
+        }
+
+        let a = a[0];
+        verify_gcd(zero, a, a);
+        verify_gcd(a, zero, a);
+    }
+
     #[test]
     fn test_gcd() {
-        // u8
-        for (ind, val) in U8_GCD_A.iter().enumerate() {
-            let gcd = val.gcd(U8_GCD_B[ind]);
-            let egcd = val.gcd_euclid(U8_GCD_B[ind]);
-            let bgcd = val.gcd_binary(U8_GCD_B[ind]);
-            assert_eq!(U8_GCD_R[ind], gcd);
-            assert_eq!(U8_GCD_R[ind], bgcd);
-            assert_eq!(U8_GCD_R[ind], egcd);
-        }
-
-        // u16
-        for (ind, val) in U16_GCD_A.iter().enumerate() {
-            let gcd = val.gcd(U16_GCD_B[ind]);
-            let egcd = val.gcd_euclid(U16_GCD_B[ind]);
-            let bgcd = val.gcd_binary(U16_GCD_B[ind]);
-            assert_eq!(U16_GCD_R[ind], gcd);
-            assert_eq!(U16_GCD_R[ind], bgcd);
-            assert_eq!(U16_GCD_R[ind], egcd);
-        }
-
-        // u32
-        for (ind, val) in U32_GCD_A.iter().enumerate() {
-            let gcd = val.gcd(U32_GCD_B[ind]);
-            let egcd = val.gcd_euclid(U32_GCD_B[ind]);
-            let bgcd = val.gcd_binary(U32_GCD_B[ind]);
-            assert_eq!(U32_GCD_R[ind], gcd);
-            assert_eq!(U32_GCD_R[ind], bgcd);
-            assert_eq!(U32_GCD_R[ind], egcd);
-        }
-
-        // u64
-        for (ind, val) in U64_GCD_A.iter().enumerate() {
-            let gcd = val.gcd(U64_GCD_B[ind]);
-            let egcd = val.gcd_euclid(U64_GCD_B[ind]);
-            let bgcd = val.gcd_binary(U64_GCD_B[ind]);
-            assert_eq!(U64_GCD_R[ind], gcd);
-            assert_eq!(U64_GCD_R[ind], bgcd);
-            assert_eq!(U64_GCD_R[ind], egcd);
-        }
-
-        // u128
-        for (ind, val) in U128_GCD_A.iter().enumerate() {
-            let gcd = val.gcd(U128_GCD_B[ind]);
-            let egcd = val.gcd_euclid(U128_GCD_B[ind]);
-            let bgcd = val.gcd_binary(U128_GCD_B[ind]);
-            assert_eq!(U128_GCD_R[ind], gcd);
-            assert_eq!(U128_GCD_R[ind], bgcd);
-            assert_eq!(U128_GCD_R[ind], egcd);
-        }
-
-        // usize
-        for (ind, val) in USIZE_GCD_A.iter().enumerate() {
-            let gcd = val.gcd(USIZE_GCD_B[ind]);
-            let egcd = val.gcd_euclid(USIZE_GCD_B[ind]);
-            let bgcd = val.gcd_binary(USIZE_GCD_B[ind]);
-            assert_eq!(USIZE_GCD_R[ind], gcd);
-            assert_eq!(USIZE_GCD_R[ind], bgcd);
-            assert_eq!(USIZE_GCD_R[ind], egcd);
-        }
+        test_gcd_ty(NonZeroU8::new, 0, &U8_GCD_A, &U8_GCD_B, &U8_GCD_R);
+        test_gcd_ty(NonZeroU16::new, 0, &U16_GCD_A, &U16_GCD_B, &U16_GCD_R);
+        test_gcd_ty(NonZeroU32::new, 0, &U32_GCD_A, &U32_GCD_B, &U32_GCD_R);
+        test_gcd_ty(NonZeroU64::new, 0, &U64_GCD_A, &U64_GCD_B, &U64_GCD_R);
+        test_gcd_ty(NonZeroU128::new, 0, &U128_GCD_A, &U128_GCD_B, &U128_GCD_R);
+        test_gcd_ty(
+            NonZeroUsize::new,
+            0,
+            &USIZE_GCD_A,
+            &USIZE_GCD_B,
+            &USIZE_GCD_R,
+        );
     }
 
     const U32_GCD_R_0: u32 = binary_u32(U32_GCD_A[0], U32_GCD_B[0]);
