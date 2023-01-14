@@ -84,14 +84,17 @@ macro_rules! gcd_impl {
         }
 
         impl Gcd for $T {
+            #[inline]
             fn gcd(self, other: $T) -> $T {
                 self.gcd_binary(other)
             }
 
+            #[inline]
             fn gcd_binary(self, v: $T) -> $T {
                 $binary(self, v)
             }
 
+            #[inline]
             fn gcd_euclid(self, other: $T) -> $T {
                 $euclid(self, other)
             }
