@@ -30,62 +30,58 @@ pub trait Gcd {
 
 macro_rules! gcd_impl {
     ($(($T:ty) $binary:ident $euclid:ident),*) => {$(
+        #[doc = concat!("Const binary GCD implementation for `", stringify!($T), "`.")]
+        pub const fn $binary(mut u: $T, mut v: $T) -> $T
+        {
+            if u == 0 { return v; }
+            if v == 0 { return u; }
 
+            let shift = (u | v).trailing_zeros();
+            u >>= shift;
+            v >>= shift;
+            u >>= u.trailing_zeros();
 
-            #[doc = concat!("Const binary GCD implementation for `", stringify!($T), "`.")]
-            pub const fn $binary(mut u: $T, mut v: $T) -> $T
-            {
-                if u == 0 { return v; }
-                if v == 0 { return u; }
-
-                let shift = (u | v).trailing_zeros();
-                u >>= shift;
-                v >>= shift;
-                u >>= u.trailing_zeros();
-
-                loop {
-                    v >>= v.trailing_zeros();
-
-                    #[allow(clippy::manual_swap)]
-                    if u > v {
-                        // mem::swap(&mut u, &mut v);
-                        let temp = u;
-                        u = v;
-                        v = temp;
-                    }
-
-                    v -= u; // here v >= u
-
-                    if v == 0 { break; }
-                }
-
-                u << shift
-            }
-
-            #[doc = concat!("Const euclid GCD implementation for `", stringify!($T), "`.")]
-            pub const fn $euclid( a: $T,  b: $T) -> $T
-            {
-                // variable names based off euclidean division equation: a = b · q + r
-                let (mut a, mut b) = if a > b {
-                    (a, b)
-                } else {
-                    (b, a)
-                };
+            loop {
+                v >>= v.trailing_zeros();
 
                 #[allow(clippy::manual_swap)]
-                while b != 0 {
-                    // mem::swap(&mut a, &mut b);
-                    let temp = a;
-                    a = b;
-                    b = temp;
-
-                    b %= a;
+                if u > v {
+                    // mem::swap(&mut u, &mut v);
+                    let temp = u;
+                    u = v;
+                    v = temp;
                 }
 
-                a
+                v -= u; // here v >= u
+
+                if v == 0 { break; }
             }
 
+            u << shift
+        }
 
+        #[doc = concat!("Const euclid GCD implementation for `", stringify!($T), "`.")]
+        pub const fn $euclid(a: $T, b: $T) -> $T
+        {
+            // variable names based off euclidean division equation: a = b · q + r
+            let (mut a, mut b) = if a > b {
+                (a, b)
+            } else {
+                (b, a)
+            };
+
+            #[allow(clippy::manual_swap)]
+            while b != 0 {
+                // mem::swap(&mut a, &mut b);
+                let temp = a;
+                a = b;
+                b = temp;
+
+                b %= a;
+            }
+
+            a
+        }
 
         impl Gcd for $T {
             fn gcd(self, other: $T) -> $T {
@@ -93,15 +89,11 @@ macro_rules! gcd_impl {
             }
 
             fn gcd_binary(self, v: $T) -> $T {
-
-                    $binary(self, v)
-
+                $binary(self, v)
             }
 
             fn gcd_euclid(self, other: $T) -> $T {
-
-                    $euclid(self, other)
-
+                $euclid(self, other)
             }
         }
     )*};
