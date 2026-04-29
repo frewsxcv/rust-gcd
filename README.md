@@ -1,3 +1,5 @@
+**⚠️ This repository has moved to tangled: <https://tangled.org/rwell.org/rust-gcd> ⚠️**
+
 # rust-gcd
 
 [Documentation](https://docs.rs/gcd/)
